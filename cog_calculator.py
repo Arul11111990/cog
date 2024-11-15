@@ -6,7 +6,7 @@ from tkinter import ttk, messagebox
 # Function to fetch COG and mass values for each parameter from respective tables
 def get_cog_mass_values(vc_model, vc_moc, vc_fill_type, vc_eliminators, vc_sweeper_piping, vc_intake, vc_discharge):
     try:
-        connection = pyodbc.connect(r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=C:\\Users\\arul.mohan\\OneDrive - MKS VISION PVT LTD\\COG\\VT_COG.accdb;")
+        connection = pyodbc.connect(r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=C:/Users/arul.mohan/OneDrive - MKS VISION PVT LTD/Documents/GitHub/cog/db/VT_COG.accdb;")
         cursor = connection.cursor()
 
         tables = {

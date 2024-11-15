@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COG Drawing Generator</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>COG Drawing Generator</h1>
+    <form id="cog-form">
+        <label for="vc_model">VC Model:</label>
+        <select id="vc_model" name="vc_model">
+            <option value="VT0-012-E">VT0-012-E</option>
+            <!-- Add more options -->
+        </select><br><br>
+
+        <!-- Add other dropdowns here -->
+
+        <button type="button" onclick="submitForm()">Calculate COG</button>
+    </form>
+
+    <h2 id="result"></h2>
+
+    <script>
+        async function submitForm() {
+            const formData = {
+                vc_model: document.getElementById('vc_model').value,
+                // Add other fields here
+            };
+            
+            try {
+                const response = await axios.post('/calculate', formData);
+                if (response.data.status === 'success') {
+                    document.getElementById('result').innerText = `COG X: ${response.data.cog_values.x}, Y: ${response.data.cog_values.y}, Z: ${response.data.cog_values.z}`;
+                } else {
+                    alert(response.data.message);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+</html>

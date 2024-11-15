@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COG Drawing Generator for VT0/VT1</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #004a99;
+        }
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>COG Drawing Generator</h2>
+        <form id="cogForm">
+            <div class="form-group">
+                <label for="vc_model">VC Model</label>
+                <select id="vc_model">
+                    <!-- Options populated dynamically -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="vc_moc">MOC</label>
+                <select id="vc_moc">
+                    <option value="GLV">GLV</option>
+                    <option value="BBD">BBD</option>
+                    <option value="ALL_304_SST">ALL_304_SST</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="vc_fill_type">Fill Type</label>
+                <select id="vc_fill_type">
+                    <option value="PVC">PVC</option>
+                    <option value="PVC_HIGH_TEMP">PVC_HIGH_TEMP</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="vc_eliminators">Eliminators</label>
+                <select id="vc_eliminators">
+                    <option value="PVC">PVC</option>
+                    <option value="GLV">GLV</option>
+                    <option value="BBD">BBD</option>
+                    <option value="SST304">SST304</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="vc_sweeper_piping">Sweeper Piping</label>
+                <select id="vc_sweeper_piping">
+                    <option value="NONE">NONE</option>
+                    <option value="YES_SWEEP_PIPE">YES_SWEEP_PIPE</option>
+                    <option value="IND_SWEEP_PIPE">IND_SWEEP_PIPE</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="vc_intake">Intake</label>
+                <select id="vc_intake">
+                    <option value="NONE">NONE</option>
+                    <option value="INLET_SND_GLV">INLET_SND_GLV</option>
+                    <!-- Add other options -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="vc_discharge">Discharge</label>
+                <select id="vc_discharge">
+                    <option value="NONE">NONE</option>
+                    <option value="GLV_DISCHR_SND">GLV_DISCHR_SND</option>
+                    <!-- Add other options -->
+                </select>
+            </div>
+            <button type="submit">Calculate Combined COG</button>
+        </form>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        // Populate VC Model options dynamically
+        const vcModels = [
+            "VT0-012-E", "VT0-014-F", "VT0-019-G", "VT0-024-G", "VT0-028-H", "VT0-032-H", 
+    "VT0-041-J", "VT0-052-J", "VT0-057-K", "VT0-065-J", "VT0-075-K", "VT0-078-K", 
+    "VT0-088-L", "VT0-102-L", "VT0-107-L", "VT0-116-M", "VT0-132-L", "VT0-145-M", 
+    "VT0-155-N", "VT0-166-N", "VT0-176-O", "VT1-1020-P", "VT1-1125-P", "VT1-1200-Q", 
+    "VT1-1245-R", "VT1-1335-S", "VT1-275-P", "VT1-307-O", "VT1-340-P", "VT1-375-P", 
+    "VT1-400-Q", "VT1-415-R", "VT1-416-O", "VT1-478-N", "VT1-507-O", "VT1-550-P", 
+    "VT1-560-O", "VT1-600-P", "VT1-680-P", "VT1-750-P", "VT1-800-Q", "VT1-825-P", 
+    "VT1-830-R", "VT1-921-O", "VT1-M1044-P", "VT1-M1050-O", "VT1-M1056-P", "VT1-M1113-P",
+    "VT1-M1137-Q", "VT1-M1194-Q", "VT1-M1260-R", "VT1-M316-O", "VT1-M328-O", "VT1-M348-P", 
+    "VT1-M350-O", "VT1-M352-P", "VT1-M371-P", "VT1-M379-Q", "VT1-M398-Q", "VT1-M420-R", 
+    "VT1-M431-N", "VT1-M455-O", "VT1-M484-N", "VT1-M514-O", "VT1-M515-N", "VT1-M533-N", 
+    "VT1-M544-O", "VT1-M557-O", "VT1-M560-P", "VT1-M595-P", "VT1-M610-P", "VT1-M632-O", 
+    "VT1-M656-O", "VT1-M696-P", "VT1-M700-O", "VT1-M704-P", "VT1-M742-P", "VT1-M758-Q", 
+    "VT1-M796-Q", "VT1-M840-R", "VT1-M948-O", "VT1-M984-O", "VT1-N209-P", "VT1-N220-O", 
+    "VT1-N240-P", "VT1-N255-P", "VT1-N301-Q", "VT1-N325-P", "VT1-N346-Q", "VT1-N370-Q", 
+    "VT1-N395-R", "VT1-N418-P", "VT1-N440-O", "VT1-N480-P", "VT1-N510-P"
+        ];
+
+        const vcModelSelect = document.getElementById('vc_model');
+        vcModels.forEach(model => {
+            const option = document.createElement('option');
+            option.value = model;
+            option.textContent = model;
+            vcModelSelect.appendChild(option);
+        });
+
+    // Handle form submission
+    document.getElementById('cogForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const formData = {
+            vc_model: document.getElementById('vc_model').value,
+            vc_moc: document.getElementById('vc_moc').value,
+            vc_fill_type: document.getElementById('vc_fill_type').value,
+            vc_eliminators: document.getElementById('vc_eliminators').value,
+            vc_sweeper_piping: document.getElementById('vc_sweeper_piping').value,
+            vc_intake: document.getElementById('vc_intake').value,
+            vc_discharge: document.getElementById('vc_discharge').value
+        };
+
+        const response = await fetch('/calculate_cog', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            document.getElementById('result').textContent = 
+                `Combined COG - X: ${result.x}, Y: ${result.y}, Z: ${result.z}`;
+
+            // Add "Download PDF" button
+            const downloadButton = document.createElement('button');
+            downloadButton.textContent = 'Download PDF';
+            downloadButton.onclick = async () => {
+                const pdfResponse = await fetch('/generate_pdf', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(result)
+                });
+                const blob = await pdfResponse.blob();
+                const link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = 'Combined_COG_Report.pdf';
+                link.click();
+            };
+            document.getElementById('result').appendChild(downloadButton);
+        } else {
+            document.getElementById('result').textContent = result.error;
+        }
+    });
+    </script>
+</body>
+</html>
