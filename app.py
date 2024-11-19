@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, render_template, send_file
 import pyodbc
 import fitz
+import requests
 from io import BytesIO
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
@@ -26,6 +27,9 @@ def calculate_cog():
 
     try:
         connection = pyodbc.connect(r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=C:/Users/arul.mohan/OneDrive - MKS VISION PVT LTD/Documents/GitHub/cog/db/VT_COG.accdb;")
+        
+        # connection = pyodbc.connect(r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=https://raw.githubusercontent.com/Arul11111990/cog/2856c748225974645b69daf696813fa17af6db92/db/VT_COG.accdb;")
+
         cursor = connection.cursor()
 
         tables = {
@@ -84,7 +88,20 @@ def generate_pdf():
     
         # Load the existing PDF template
         pdf_template_path = r"C:\Users\arul.mohan\OneDrive - MKS VISION PVT LTD\Desktop\COG_VT_1.pdf"
-        pdf_buffer = BytesIO()
+        # pdf_template_path="https://raw.githubusercontent.com/Arul11111990/cog/2856c748225974645b69daf696813fa17af6db92/template/COG_VT_1.pdf"
+
+        # Fetch PDF template from GitHub
+        """ pdf_template_url = "https://raw.githubusercontent.com/Arul11111990/cog/2856c748225974645b69daf696813fa17af6db92/template/COG_VT_1.pdf"
+        response = requests.get(pdf_template_url)
+
+        if response.status_code != 200:
+            return jsonify({'error': 'PDF template not found'}), 404
+        
+        pdf_buffer = BytesIO(response.content)
+
+        doc = fitz.open(pdf_buffer)"""
+        
+        pdf_buffer = BytesIO() 
 
         doc = fitz.open(pdf_template_path)
         page = doc[0]  # Assuming text is added to the first page
@@ -93,17 +110,25 @@ def generate_pdf():
         page_size = (842, 595)  # Width, Height in points (A4 landscape)
 
         # Define text and positions (adjust coordinates as needed)
-        page.insert_text((550, 410), f"{cog_x}", fontsize=12)
-        page.insert_text((620, 410), f"{cog_y}", fontsize=12)
-        page.insert_text((690, 410), f"{cog_z}", fontsize=12)
-
+        page.insert_text((550, 397.5), f"{cog_x}", fontsize=12)
+        page.insert_text((620, 397.5), f"{cog_y}", fontsize=12)
+        page.insert_text((690, 397.5), f"{cog_z}", fontsize=12)
+        
         # Save the updated PDF into memory buffer
+        pdf_output = BytesIO()
+        doc.save(pdf_output)
+        doc.close()
+        pdf_output.seek(0)
+
+        return send_file(pdf_output, as_attachment=True, download_name="Updated_COG_Report.pdf")
+
+        """ # Save the updated PDF into memory buffer
         doc.save(pdf_buffer)
         doc.close()
         pdf_buffer.seek(0)
 
         return send_file(pdf_buffer, as_attachment=True, download_name="Updated_COG_Report.pdf")
-
+ """
     
 
 if __name__ == '__main__':

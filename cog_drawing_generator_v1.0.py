@@ -85,9 +85,9 @@ def create_overlay(cog_x, cog_y, cog_z):
     c = canvas.Canvas(overlay, pagesize=(842, 595))  # A4 size (width, height in points)
     c.setFont("Helvetica-Bold", 12)
     c.setFillColorRGB(0, 0, 0)
-    c.drawString(550, 185, f"{cog_x:.2f}")
-    c.drawString(620, 185, f"{cog_y:.2f}")
-    c.drawString(690, 185, f"{cog_z:.2f}")
+    c.drawString(550, 197.5, f"{cog_x:.2f}")
+    c.drawString(620, 197.5, f"{cog_y:.2f}")
+    c.drawString(690, 197.5, f"{cog_z:.2f}")
     c.save()
     return overlay
 
