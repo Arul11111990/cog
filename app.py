@@ -16,30 +16,29 @@ def index():
 
 @app.route('/calculate_cog', methods=['POST'])
 def calculate_cog():
-    data = request.json
-    vc_model = data['vc_model']
-    vc_moc = data['vc_moc']
-    vc_fill_type = data['vc_fill_type']
-    vc_eliminators = data['vc_eliminators']
-    vc_sweeper_piping = data['vc_sweeper_piping']
-    vc_intake = data['vc_intake']
-    vc_discharge = data['vc_discharge']
-
     try:
-        connection = pyodbc.connect(r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=C:/Users/arul.mohan/OneDrive - MKS VISION PVT LTD/Documents/GitHub/cog/db/VT_COG.accdb;")
-        
-        # connection = pyodbc.connect(r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=https://raw.githubusercontent.com/Arul11111990/cog/2856c748225974645b69daf696813fa17af6db92/db/VT_COG.accdb;")
+        data = request.json
+        vc_model = data['vc_model']
+        vc_moc = data['vc_moc']
+        vc_fill_type = data['vc_fill_type']
+        vc_eliminators = data['vc_eliminators']
+        vc_sweeper_piping = data['vc_sweeper_piping']
+        vc_intake = data['vc_intake']
+        vc_discharge = data['vc_discharge']
 
+        connection = pyodbc.connect(
+            r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};"
+            r"DBQ=C:/Users/arul.mohan/OneDrive - MKS VISION PVT LTD/Documents/GitHub/cog/db/VT_COG.accdb;"
+        )
         cursor = connection.cursor()
 
         tables = {
-            
             'MOC_COG': ('MOC', vc_moc),
             'FILL_COG': ('FILLTYPE', vc_fill_type),
             'ELIM_COG': ('ELIMTYPE', vc_eliminators),
             'SWP_COG': ('SWP_PIPING', vc_sweeper_piping),
             'INTAKE_ATTN_COG': ('INTAKE_ATTN', vc_intake),
-            'DIS_COG': ('DIS_ATTN', vc_discharge)
+            'DIS_COG': ('DIS_ATTN', vc_discharge),
         }
 
         total_mass = 0
@@ -62,16 +61,21 @@ def calculate_cog():
 
         if total_mass > 0:
             combined_cog = {
-                'x': f"{weighted_cog['x'] / total_mass:.2f}",  # Format to 2 decimal places
-                'y': f"{weighted_cog['y'] / total_mass:.2f}",  # Format to 2 decimal places
-                'z': f"{weighted_cog['z'] / total_mass:.2f}"   # Format to 2 decimal places
+                'x': f"{weighted_cog['x'] / total_mass:.2f}",
+                'y': f"{weighted_cog['y'] / total_mass:.2f}",
+                'z': f"{weighted_cog['z'] / total_mass:.2f}",
             }
             return jsonify(combined_cog)
         else:
             return jsonify({'error': 'No data found'}), 404
 
+    except pyodbc.Error as e:
+        print(f"Database error: {e}")
+        return jsonify({'error': 'Database error occurred'}), 500
     except Exception as e:
+        print(f"Unhandled exception: {e}")
         return jsonify({'error': str(e)}), 500
+
     
 @app.route('/generate_pdf', methods=['POST'])
 def generate_pdf():

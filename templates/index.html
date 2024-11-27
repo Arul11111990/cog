@@ -245,7 +245,7 @@
                 <i class="fas fa-download"></i> Download PDF
                 </button> `;
 
-      const downloadButton = document.getElementById("downloadPdfBtn");
+      /* const downloadButton = document.getElementById("downloadPdfBtn");
       downloadButton.onclick = async () => {
         
           const response = await fetch("/generate_pdf", {
@@ -262,6 +262,29 @@
         resultDiv.appendChild(downloadButton);
         } catch (error) {
           console.error("Error downloading PDF:", error);
+        }
+      }); */
+       // PDF Download
+       document.getElementById("downloadPdfBtn").addEventListener("click", async () => {
+            try {
+              const pdfResponse = await fetch("/generate_pdf", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(result),
+              });
+              const blob = await pdfResponse.blob();
+              const link = document.createElement("a");
+              link.href = window.URL.createObjectURL(blob);
+              link.download = "Combined_COG_Report.pdf";
+              link.click();
+            } catch (error) {
+              console.error("Error downloading PDF:", error);
+              alert("Failed to download PDF.");
+            }
+          });
+        } catch (error) {
+          console.error("Error:", error);
+          resultDiv.textContent = "Error: Unable to calculate Combined COG.";
         }
       });
               
